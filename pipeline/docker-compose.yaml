@@ -9,6 +9,7 @@ services:
       - "ny_taxi_postgres_data:/var/lib/postgresql:rw"
     ports:
       - "5432:5432"
+  
   pgadmin:
     image: dpage/pgadmin4
     environment:
@@ -18,6 +19,22 @@ services:
       - "pgadmin_data:/var/lib/pgadmin"
     ports:
       - "8085:80"
+  
+  taxi_ingest:
+    build: .
+    image: taxi_ingest:v001
+    command: >
+      --pg-user=firstroot
+      --pg-pass=firstroot
+      --pg-host=pgdatabase
+      --pg-port=5432
+      --pg-db=ny_taxi
+      --target-table=yellow_taxi_trips_2021_2
+      --chunksize=100000
+    depends_on:
+      - pgdatabase
+    networks:
+      - default
 
 volumes:
   ny_taxi_postgres_data:
